@@ -1,16 +1,22 @@
 {
-  "name":"cost-system-backend",
-  "version":"1.0.0",
-  "type":"module",
-  "main":"app.js",
-  "scripts":{
-    "dev":"node --watch src/app.js"
+  "name": "cost-system-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "dev": "node --watch src/app.js"
   },
-  "dependencies":{
-    "cors":"^2.8.5",
-    "dotenv":"^17.2.2",
-    "express":"^5.1.0",
-    "swagger-jsdoc":"^6.2.8",
-    "swagger-ui-express":"^5.0.1",
-    "xlsx":"^0.18.5"
-  }}
+  "dependencies": {
+    "axios": "^1.12.2",
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "helmet": "^8.1.0",
+    "joi": "^18.0.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "xlsx": "^0.18.5"
+  }
+}

@@ -1,4 +1,5 @@
 import express from 'express';
+import Joi from 'joi';
 import { calculateFromInput } from '../services/calculator.js';
 
 const router = express.Router();
@@ -130,15 +131,44 @@ const router = express.Router();
  *                   type: string
  *                   example: "İç sunucu hatası"
  */
-router.post('/', (req, res) => {
+
+const calculateSchema = Joi.object({
+    rates: Joi.object({
+        EUR: Joi.number().positive(),
+        USD: Joi.number().positive(),
+        GBP: Joi.number().positive()
+    }).optional(),
+    fabric: Joi.object({
+        unit_eur: Joi.number().positive(),
+        price_eur: Joi.number().positive(),
+        metre_eur: Joi.number().positive()
+    }).optional(),
+    // diğer validasyonlar...
+});
+
+router.post('/', async (req, res) => {
     try {
-        const payload = req.body || {};
-        const out = calculateFromInput(payload);
+        const { error, value } = calculateSchema.validate(req.body);
+        if (error) {
+            return res.status(400).json({
+                success: false,
+                error: 'Validation failed',
+                details: error.details
+            });
+        }
+
+        const out = await calculateFromInput(value || {});
         res.json({ success: true, data: out });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ success:false, error: err.message });
+        console.error('Calculate error:', err);
+        res.status(500).json({
+            success: false,
+            error: process.env.NODE_ENV === 'production'
+                ? 'Internal server error'
+                : err.message
+        });
     }
 });
+
 
 export default router;
