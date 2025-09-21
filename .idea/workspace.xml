@@ -4,17 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f5784de2-d62b-44f8-be50-97fd4d7eb032" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/server.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/vercel.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/middleware/security.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/middleware/security.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/middleware/validation.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/middleware/validation.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/calculate.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/calculate.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/health.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/health.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/odsParser.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/odsParser.js" afterDir="false" />
-    </list>
+    <list default="true" id="f5784de2-d62b-44f8-be50-97fd4d7eb032" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -70,6 +60,7 @@
       <workItem from="1758456926945" duration="206000" />
       <workItem from="1758457393884" duration="236000" />
       <workItem from="1758457737056" duration="287000" />
+      <workItem from="1758458405586" duration="96000" />
     </task>
     <servers />
   </component>
