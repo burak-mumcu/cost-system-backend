@@ -1,6 +1,10 @@
 import express from 'express';
-import Joi from 'joi';
 import { calculateFromInput } from '../services/calculator.js';
+import { validateBody, calculateSchema } from '../middleware/validation.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
+import { createCalculationRateLimit } from '../middleware/security.js';
+import { HTTP_STATUS, APP_CONSTANTS } from '../config/constants.js';
+import { logger } from '../utils/logger.js';
 
 const router = express.Router();
 
@@ -8,167 +12,90 @@ const router = express.Router();
  * @swagger
  * /api/calculate:
  *   post:
- *     summary: Maliyet hesaplaması yapar
+ *     summary: Perform cost calculation
+ *     description: |
+ *       Calculate production costs based on provided parameters.
+ *       Any parameter not provided will use default values from the ODS file.
+ *       Returns detailed cost breakdown for all batch ranges.
  *     tags: [Calculate]
- *     description: Döviz kurları, kumaş fiyatları ve diğer parametreler ile maliyet hesaplaması
  *     requestBody:
  *       required: false
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               rates:
- *                 type: object
- *                 description: Döviz kurları
- *                 properties:
- *                   EUR:
- *                     type: number
- *                     example: 37.99
- *                   USD:
- *                     type: number
- *                     example: 33.99
- *                   GBP:
- *                     type: number
- *                     example: 44.93
- *               fabric:
- *                 type: object
- *                 description: Kumaş fiyat bilgileri
- *                 properties:
- *                   unit_eur:
- *                     type: number
- *                     example: 4.74
- *                   price_eur:
- *                     type: number
- *                     example: 3.16
- *                   metre_eur:
- *                     type: number
- *                     example: 1.5
- *               genel_gider:
- *                 type: object
- *                 description: Genel gider oranları (adet aralığına göre)
- *                 additionalProperties:
- *                   type: number
- *                 example:
- *                   "0-50": 12.5
- *                   "51-100": 10.0
- *                   "101-500": 8.5
- *               karlilik:
- *                 type: object
- *                 description: Karlılık oranları
- *                 additionalProperties:
- *                   type: number
- *                 example:
- *                   "0-50": 25.0
- *                   "51-100": 20.0
- *               KDV:
- *                 type: number
- *                 description: KDV oranı (%)
- *                 example: 20
- *               komisyon:
- *                 type: number
- *                 description: Komisyon oranı (%)
- *                 example: 5
- *               operations:
- *                 type: object
- *                 description: İşlem maliyetleri
- *                 additionalProperties:
- *                   type: number
- *                 example:
- *                   "cutting": 2.5
- *                   "sewing": 8.0
- *                   "finishing": 3.0
- *               batch:
- *                 type: object
- *                 description: Batch maliyetleri (adet aralığına göre)
- *                 additionalProperties:
- *                   type: number
- *                 example:
- *                   "0-50": 25
- *                   "51-100": 20
- *                   "101-500": 15
+ *             $ref: '#/components/schemas/CalculationInput'
+ *           examples:
+ *             basic:
+ *               summary: Basic calculation with exchange rates
+ *               value:
+ *                 rates:
+ *                   EUR: 38.50
+ *                   USD: 34.20
+ *                   GBP: 45.10
+ *             advanced:
+ *               summary: Advanced calculation with multiple parameters
+ *               value:
+ *                 rates:
+ *                   EUR: 38.50
+ *                   USD: 34.20
+ *                   GBP: 45.10
+ *                 fabric:
+ *                   unit_eur: 5.00
+ *                   price_eur: 4.50
+ *                 KDV: 18
+ *                 komisyon: 3
+ *                 genel_gider:
+ *                   "0-50": 15
+ *                   "51-100": 12
+ *                   "101-200": 10
  *     responses:
  *       200:
- *         description: Hesaplama başarılı
+ *         description: Calculation completed successfully
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 result:
- *                   type: object
- *                   description: Hesaplama sonuçları
- *                 calculations:
- *                   type: object
- *                   description: Detaylı hesaplama bilgileri
+ *               $ref: '#/components/schemas/CalculationResponse'
  *       400:
- *         description: Hatalı istek
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 error:
- *                   type: string
- *                   example: "Geçersiz parametre"
+ *         $ref: '#/components/responses/BadRequest'
+ *       429:
+ *         $ref: '#/components/responses/TooManyRequests'
  *       500:
- *         description: Sunucu hatası
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 error:
- *                   type: string
- *                   example: "İç sunucu hatası"
+ *         $ref: '#/components/responses/InternalServerError'
  */
+router.post('/',
+    createCalculationRateLimit(),
+    validateBody(calculateSchema),
+    asyncHandler(async (req, res) => {
+        const startTime = Date.now();
 
-const calculateSchema = Joi.object({
-    rates: Joi.object({
-        EUR: Joi.number().positive(),
-        USD: Joi.number().positive(),
-        GBP: Joi.number().positive()
-    }).optional(),
-    fabric: Joi.object({
-        unit_eur: Joi.number().positive(),
-        price_eur: Joi.number().positive(),
-        metre_eur: Joi.number().positive()
-    }).optional(),
-    // diğer validasyonlar...
-});
-
-router.post('/', async (req, res) => {
-    try {
-        const { error, value } = calculateSchema.validate(req.body);
-        if (error) {
-            return res.status(400).json({
-                success: false,
-                error: 'Validation failed',
-                details: error.details
-            });
-        }
-
-        const out = await calculateFromInput(value || {});
-        res.json({ success: true, data: out });
-    } catch (err) {
-        console.error('Calculate error:', err);
-        res.status(500).json({
-            success: false,
-            error: process.env.NODE_ENV === 'production'
-                ? 'Internal server error'
-                : err.message
+        logger.info('Calculation request received', {
+            inputKeys: Object.keys(req.validatedBody || {}),
+            ip: req.ip,
+            userAgent: req.get('User-Agent')
         });
-    }
-});
 
+        try {
+            const result = await calculateFromInput(req.validatedBody || {});
+            const duration = Date.now() - startTime;
+
+            logger.info('Calculation completed successfully', {
+                duration: `${duration}ms`,
+                rangesCalculated: Object.keys(result.result || {}).length,
+                cacheUsed: result.metadata?.fromCache || false
+            });
+
+            res.status(HTTP_STATUS.OK).json({
+                success: true,
+                data: result,
+                message: APP_CONSTANTS.SUCCESS_MESSAGES.CALCULATION_COMPLETED,
+                processingTime: `${duration}ms`
+            });
+
+        } catch (error) {
+            // Error is already logged by the error handler middleware
+            throw error;
+        }
+    })
+);
 
 export default router;

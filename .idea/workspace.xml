@@ -1,7 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="f5784de2-d62b-44f8-be50-97fd4d7eb032" name="Changes" comment="" />
+    <list default="true" id="f5784de2-d62b-44f8-be50-97fd4d7eb032" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/config/constants.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/config/environment.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/config/swagger.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/middleware/errorHandler.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/middleware/security.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/middleware/validation.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/routes/health.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/utils/cache.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/utils/errors.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/utils/logger.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/calculate.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/calculate.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/schema.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/schema.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/calculator.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/calculator.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/exchangeRateService.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/exchangeRateService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/odsParser.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/odsParser.js" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -27,7 +52,12 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
     "last_opened_file_path": "C:/Users/Monster/Documents/GitHub/cost-system-backend",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
+    "prettierjs.PrettierConfiguration.Package": "C:\\Users\\Monster\\Documents\\GitHub\\cost-system-backend\\node_modules\\prettier",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -46,6 +76,7 @@
       <updated>1758367881162</updated>
       <workItem from="1758367882503" duration="9000" />
       <workItem from="1758367936314" duration="4809000" />
+      <workItem from="1758412174244" duration="1319000" />
     </task>
     <servers />
   </component>
