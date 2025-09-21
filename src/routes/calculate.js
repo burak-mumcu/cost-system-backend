@@ -62,10 +62,12 @@ const router = express.Router();
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
+
+
 router.post('/',
     createCalculationRateLimit(),
-    validateBody(calculateSchema),
-    asyncHandler(async (req, res) => {
+    asyncHandler(validateBody(calculateSchema)), // DÜZELTME: asyncHandler içine al
+    asyncHandler(async(req, res) => {
         const startTime = Date.now();
 
         logger.info('Calculation request received', {
@@ -74,28 +76,22 @@ router.post('/',
             userAgent: req.get('User-Agent')
         });
 
-        try {
-            const result = await calculateFromInput(req.validatedBody || {});
-            const duration = Date.now() - startTime;
+        const result = await calculateFromInput(req.validatedBody || {});
+        const duration = Date.now() - startTime;
 
-            logger.info('Calculation completed successfully', {
-                duration: `${duration}ms`,
-                rangesCalculated: Object.keys(result.result || {}).length,
-                cacheUsed: result.metadata?.fromCache || false
-            });
+        logger.info('Calculation completed successfully', {
+            duration: `${duration}ms`,
+            rangesCalculated: Object.keys(result.result || {}).length,
+            cacheUsed: result.metadata?.fromCache || false
+        });
 
-            res.status(HTTP_STATUS.OK).json({
-                success: true,
-                data: result,
-                message: APP_CONSTANTS.SUCCESS_MESSAGES.CALCULATION_COMPLETED,
-                processingTime: `${duration}ms`
-            });
-
-        } catch (error) {
-            // Error is already logged by the error handler middleware
-            throw error;
-        }
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            data: result,
+            message: APP_CONSTANTS.SUCCESS_MESSAGES.CALCULATION_COMPLETED,
+            processingTime: `${duration}ms`
+        });
     })
-);
+)
 
 export default router;

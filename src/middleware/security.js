@@ -24,11 +24,12 @@ export function configureCors() {
                     return callback(null, true);
                 } else {
                     logger.warn('CORS blocked origin', { origin });
-                    return callback(new Error('Not allowed by CORS'), false);
+                   // return callback(new Error('Not allowed by CORS'), false);
+                    return callback(null,true) //şuanlık bütün urlleri kabul edicez
                 }
             }
 
-            callback(null, false);
+            callback(null, true);
         },
         credentials: config.cors.credentials,
         optionsSuccessStatus: config.cors.optionsSuccessStatus,

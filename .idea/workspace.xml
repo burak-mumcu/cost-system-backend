@@ -4,7 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f5784de2-d62b-44f8-be50-97fd4d7eb032" name="Changes" comment="" />
+    <list default="true" id="f5784de2-d62b-44f8-be50-97fd4d7eb032" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/server.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vercel.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/middleware/security.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/middleware/security.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/middleware/validation.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/middleware/validation.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/calculate.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/calculate.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes/health.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/health.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/odsParser.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/odsParser.js" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -24,21 +34,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "C:/Users/Monster/Documents/GitHub/cost-system-frontend",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "prettierjs.PrettierConfiguration.Package": "C:\\Users\\Monster\\Documents\\GitHub\\cost-system-backend\\node_modules\\prettier",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Monster/Documents/GitHub/cost-system-frontend&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;C:\\Users\\Monster\\Documents\\GitHub\\cost-system-backend\\node_modules\\prettier&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\Monster\Documents\GitHub\cost-system-backend\src\data" />
@@ -55,6 +65,11 @@
       <workItem from="1758367882503" duration="9000" />
       <workItem from="1758367936314" duration="4809000" />
       <workItem from="1758412174244" duration="1555000" />
+      <workItem from="1758453805002" duration="440000" />
+      <workItem from="1758455095721" duration="1676000" />
+      <workItem from="1758456926945" duration="206000" />
+      <workItem from="1758457393884" duration="236000" />
+      <workItem from="1758457737056" duration="287000" />
     </task>
     <servers />
   </component>

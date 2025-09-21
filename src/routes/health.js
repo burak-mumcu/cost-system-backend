@@ -96,43 +96,42 @@ function getCacheHealth() {
  *     tags: [Health]
  */
 router.get('/',
-    validateQuery(healthCheckSchema),
     asyncHandler(async (req, res) => {
-        const { detailed } = req.validatedQuery;
+        const startTime = Date.now();
 
-        logger.debug('Health check requested', {
-            detailed,
+        logger.info('Schema request received', {
             ip: req.ip,
             userAgent: req.get('User-Agent')
         });
 
-        const healthData = {
+        const defaults = parseOdsDefaults(); // DÜZELTME: await kaldırıldı çünkü sync fonksiyon
+        const duration = Date.now() - startTime;
+
+        const response = {
             success: true,
-            status: 'ok',
-            timestamp: new Date().toISOString(),
-            uptime: formatUptime(Date.now() - startupTime),
-            message: APP_CONSTANTS.SUCCESS_MESSAGES.HEALTH_CHECK_PASSED
+            defaults,
+            note: 'You can POST to /api/calculate with overrides to compute results.',
+            metadata: {
+                retrievedAt: new Date().toISOString(),
+                supportedCurrencies: APP_CONSTANTS.SUPPORTED_CURRENCIES,
+                batchRanges: APP_CONSTANTS.BATCH_RANGES,
+                operationTypes: Object.keys(defaults.operations || {}),
+                cacheUsed: false
+            },
+            info: {
+                description: 'Default calculation parameters from ODS configuration',
+                version: '2.0.0',
+                lastUpdated: new Date().toISOString()
+            }
         };
 
-        if (detailed) {
-            const [odsHealth, exchangeHealth, cacheHealth] = await Promise.all([
-                checkOdsFileHealth(),
-                checkExchangeRateServiceHealth(),
-                getCacheHealth()
-            ]);
+        logger.info('Schema retrieved successfully', {
+            duration: `${duration}ms`,
+            operationCount: Object.keys(defaults.operations || {}).length,
+            cacheUsed: false
+        });
 
-            healthData.version = '2.0.0';
-            healthData.environment = config.env;
-            healthData.nodeVersion = process.version;
-            healthData.platform = process.platform;
-            healthData.dependencies = {
-                odsFile: odsHealth,
-                exchangeRateService: exchangeHealth
-            };
-            healthData.cache = cacheHealth;
-        }
-
-        res.status(HTTP_STATUS.OK).json(healthData);
+        res.status(HTTP_STATUS.OK).json(response);
     })
 );
 

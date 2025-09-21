@@ -1,3 +1,5 @@
+// src/services/odsParser.js - DÜZELTME
+
 import XLSX from 'xlsx';
 import fs from 'fs';
 import path from 'path';
@@ -13,10 +15,6 @@ class OdsParser {
         this.lastModified = null;
     }
 
-    /**
-     * Parse ODS file and return default values
-     * @returns {object} - Default calculation parameters
-     */
     parseOdsDefaults() {
         const startTime = Date.now();
 
@@ -78,10 +76,6 @@ class OdsParser {
         }
     }
 
-    /**
-     * Read workbook from file
-     * @returns {object} - XLSX workbook object
-     */
     readWorkbook() {
         try {
             const workbook = XLSX.readFile(this.odsPath);
@@ -96,11 +90,6 @@ class OdsParser {
         }
     }
 
-    /**
-     * Extract default values from workbook
-     * @param {object} workbook - XLSX workbook object
-     * @returns {object} - Extracted defaults
-     */
     extractDefaults(workbook) {
         const sheetName = workbook.SheetNames[ODS_STRUCTURE.DEFAULT_SHEET_INDEX];
         const sheet = workbook.Sheets[sheetName];
@@ -132,31 +121,46 @@ class OdsParser {
         };
     }
 
-    /**
-     * Safely extract value from rows
-     * @param {array} rows - Sheet rows
-     * @param {number} row - Row index
-     * @param {number} col - Column index
-     * @returns {*} - Cell value or null
-     */
+    // DÜZELTME: Virgülden noktaya çeviren fonksiyon
+    parseNumber(value) {
+        if (value === null || value === undefined || value === '') {
+            return null;
+        }
+
+        // Eğer zaten sayı ise direkt dön
+        if (typeof value === 'number') {
+            return value;
+        }
+
+        // String ise virgülü noktaya çevir
+        if (typeof value === 'string') {
+            // Virgül ile nokta yer değiştir (Türkçe format)
+            const normalized = value.trim().replace(',', '.');
+            const num = parseFloat(normalized);
+
+            if (isNaN(num)) {
+                logger.warn('Could not parse number from ODS', {
+                    originalValue: value,
+                    normalizedValue: normalized
+                });
+                return null;
+            }
+
+            return num;
+        }
+
+        return null;
+    }
+
     safeValue(rows, row, col) {
         if (!rows[row] || rows[row][col] === undefined || rows[row][col] === null) {
             return null;
         }
 
         const value = rows[row][col];
-
-        // Convert string numbers to actual numbers
-        if (typeof value === 'string' && !isNaN(value) && value.trim() !== '') {
-            return parseFloat(value);
-        }
-
-        return value;
+        return this.parseNumber(value); // DÜZELTME: parseNumber kullan
     }
 
-    /**
-     * Extract exchange rates
-     */
     extractRates(rows) {
         const rates = {
             EUR: this.safeValue(rows, ODS_STRUCTURE.RATES_START_ROW, ODS_STRUCTURE.COLUMNS.RATE_VALUES),
@@ -164,13 +168,14 @@ class OdsParser {
             GBP: this.safeValue(rows, ODS_STRUCTURE.RATES_START_ROW + 2, ODS_STRUCTURE.COLUMNS.RATE_VALUES)
         };
 
-        // Use defaults if any rate is missing
+        // Use defaults if any rate is missing or invalid
         Object.keys(rates).forEach(currency => {
             if (!rates[currency] || rates[currency] <= 0) {
                 rates[currency] = APP_CONSTANTS.DEFAULT_EXCHANGE_RATES[currency];
                 logger.warn('Using default exchange rate', {
                     currency,
-                    defaultRate: rates[currency]
+                    defaultRate: rates[currency],
+                    originalValue: rows[ODS_STRUCTURE.RATES_START_ROW + (currency === 'EUR' ? 0 : currency === 'USD' ? 1 : 2)][ODS_STRUCTURE.COLUMNS.RATE_VALUES]
                 });
             }
         });
@@ -178,20 +183,18 @@ class OdsParser {
         return rates;
     }
 
-    /**
-     * Extract fabric pricing
-     */
     extractFabric(rows) {
-        return {
+        const fabric = {
             price_eur: this.safeValue(rows, ODS_STRUCTURE.FABRIC_START_ROW, ODS_STRUCTURE.COLUMNS.FABRIC_VALUES) || 0,
             metre_eur: this.safeValue(rows, ODS_STRUCTURE.FABRIC_START_ROW + 1, ODS_STRUCTURE.COLUMNS.FABRIC_VALUES) || 0,
             unit_eur: this.safeValue(rows, ODS_STRUCTURE.FABRIC_START_ROW + 2, ODS_STRUCTURE.COLUMNS.FABRIC_VALUES) || 0
         };
+
+        logger.debug('Extracted fabric data', fabric); // Debug log ekle
+
+        return fabric;
     }
 
-    /**
-     * Extract genel gider rates
-     */
     extractGenelGider(rows) {
         return {
             '0-50': this.safeValue(rows, ODS_STRUCTURE.GENEL_GIDER_START_ROW, ODS_STRUCTURE.COLUMNS.RANGE_0_50) || 0,
@@ -200,9 +203,6 @@ class OdsParser {
         };
     }
 
-    /**
-     * Extract karlilik rates
-     */
     extractKarlilik(rows) {
         return {
             '0-50': this.safeValue(rows, ODS_STRUCTURE.KARLILIK_START_ROW, ODS_STRUCTURE.COLUMNS.RANGE_0_50) || 0,
@@ -211,28 +211,19 @@ class OdsParser {
         };
     }
 
-    /**
-     * Extract KDV rate
-     */
     extractKDV(rows) {
         return this.safeValue(rows, ODS_STRUCTURE.KDV_ROW, ODS_STRUCTURE.COLUMNS.RATE_VALUES) || 20;
     }
 
-    /**
-     * Extract komisyon rate
-     */
     extractKomisyon(rows) {
         return this.safeValue(rows, ODS_STRUCTURE.KOMISYON_ROW, ODS_STRUCTURE.COLUMNS.RATE_VALUES) || 5;
     }
 
-    /**
-     * Extract operations data
-     */
     extractOperations(rows) {
         const operations = {};
 
         for (let i = ODS_STRUCTURE.OPERATIONS_START_ROW; i <= ODS_STRUCTURE.OPERATIONS_END_ROW; i++) {
-            const name = this.safeValue(rows, i, ODS_STRUCTURE.COLUMNS.OPERATION_NAME);
+            const name = rows[i] ? rows[i][ODS_STRUCTURE.COLUMNS.OPERATION_NAME] : null;
 
             if (!name || typeof name !== 'string') {
                 continue;
@@ -248,10 +239,6 @@ class OdsParser {
         return operations;
     }
 
-    /**
-     * Validate extracted defaults
-     * @param {object} defaults - Extracted defaults
-     */
     validateDefaults(defaults) {
         const errors = [];
 
@@ -260,44 +247,53 @@ class OdsParser {
             errors.push('Invalid rates data structure');
         } else {
             APP_CONSTANTS.SUPPORTED_CURRENCIES.forEach(currency => {
-                if (!defaults.rates[currency] || defaults.rates[currency] <= 0) {
-                    errors.push(`Invalid exchange rate for ${currency}`);
+                const rate = defaults.rates[currency];
+                if (typeof rate !== 'number' || rate <= 0 || isNaN(rate)) {
+                    logger.warn('Invalid rate detected', { currency, rate, type: typeof rate });
+                    errors.push(`Invalid exchange rate for ${currency}: ${rate}`);
                 }
             });
         }
 
-        // Validate fabric
+        // Validate fabric - daha esnek validation
         if (!defaults.fabric || typeof defaults.fabric !== 'object') {
             errors.push('Invalid fabric data structure');
+        } else {
+            Object.entries(defaults.fabric).forEach(([key, value]) => {
+                if (typeof value !== 'number' || isNaN(value)) {
+                    logger.warn('Invalid fabric value detected', { key, value, type: typeof value });
+                    // Fabric değerleri 0 olabilir, bu normal
+                }
+            });
         }
 
         // Validate ranges
         APP_CONSTANTS.BATCH_RANGES.forEach(range => {
-            if (!defaults.genel_gider[range] && defaults.genel_gider[range] !== 0) {
-                errors.push(`Missing genel_gider for range ${range}`);
+            const genelGider = defaults.genel_gider[range];
+            const karlilik = defaults.karlilik[range];
+
+            if (typeof genelGider !== 'number' || isNaN(genelGider)) {
+                errors.push(`Invalid genel_gider for range ${range}: ${genelGider}`);
             }
-            if (!defaults.karlilik[range] && defaults.karlilik[range] !== 0) {
-                errors.push(`Missing karlilik for range ${range}`);
+            if (typeof karlilik !== 'number' || isNaN(karlilik)) {
+                errors.push(`Invalid karlilik for range ${range}: ${karlilik}`);
             }
         });
 
         // Validate percentages
-        if (typeof defaults.KDV !== 'number' || defaults.KDV < 0) {
-            errors.push('Invalid KDV value');
+        if (typeof defaults.KDV !== 'number' || defaults.KDV < 0 || isNaN(defaults.KDV)) {
+            errors.push(`Invalid KDV value: ${defaults.KDV}`);
         }
-        if (typeof defaults.komisyon !== 'number' || defaults.komisyon < 0) {
-            errors.push('Invalid komisyon value');
+        if (typeof defaults.komisyon !== 'number' || defaults.komisyon < 0 || isNaN(defaults.komisyon)) {
+            errors.push(`Invalid komisyon value: ${defaults.komisyon}`);
         }
 
         if (errors.length > 0) {
+            logger.error('ODS validation failed', { errors, defaults });
             throw new Error(`Validation failed: ${errors.join(', ')}`);
         }
     }
 
-    /**
-     * Check if file has been modified since last read
-     * @returns {boolean} - True if file is unchanged
-     */
     isFileUnchanged() {
         try {
             const stats = fs.statSync(this.odsPath);
@@ -307,9 +303,6 @@ class OdsParser {
         }
     }
 
-    /**
-     * Update last modified timestamp
-     */
     updateLastModified() {
         try {
             const stats = fs.statSync(this.odsPath);
@@ -319,10 +312,6 @@ class OdsParser {
         }
     }
 
-    /**
-     * Get file information
-     * @returns {object} - File information
-     */
     getFileInfo() {
         try {
             const stats = fs.statSync(this.odsPath);

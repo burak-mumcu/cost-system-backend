@@ -3,7 +3,7 @@ import { ValidationError } from '../utils/errors.js';
 import { VALIDATION_CONSTANTS, APP_CONSTANTS } from '../config/constants.js';
 import { logger } from '../utils/logger.js';
 
-// Common validation schemas
+// Mevcut şemalar aynı kalacak...
 const currencySchema = Joi.object({
     EUR: Joi.number().positive().min(VALIDATION_CONSTANTS.MIN_POSITIVE_NUMBER).optional(),
     USD: Joi.number().positive().min(VALIDATION_CONSTANTS.MIN_POSITIVE_NUMBER).optional(),
@@ -31,7 +31,6 @@ const operationsSchema = Joi.object().pattern(
     rangeSchema
 );
 
-// Main calculation validation schema
 export const calculateSchema = Joi.object({
     rates: currencySchema.optional(),
     fabric: fabricSchema.optional(),
@@ -47,100 +46,110 @@ export const calculateSchema = Joi.object({
     }).optional()
 });
 
-// Query parameter schemas
 export const healthCheckSchema = Joi.object({
     detailed: Joi.boolean().default(false)
 });
 
-// Validation middleware factory
+// DÜZELTME: Validation middleware'leri sync olarak değiştirildi
 export function validateBody(schema) {
     return (req, res, next) => {
-        const { error, value } = schema.validate(req.body, {
-            abortEarly: false,
-            stripUnknown: true,
-            convert: true
-        });
-
-        if (error) {
-            const details = error.details.map(detail => ({
-                field: detail.path.join('.'),
-                message: detail.message,
-                value: detail.context?.value
-            }));
-
-            logger.warn('Request validation failed', {
-                url: req.url,
-                method: req.method,
-                errors: details
+        try {
+            const { error, value } = schema.validate(req.body, {
+                abortEarly: false,
+                stripUnknown: true,
+                convert: true
             });
 
-            throw new ValidationError('Request validation failed', details);
-        }
+            if (error) {
+                const details = error.details.map(detail => ({
+                    field: detail.path.join('.'),
+                    message: detail.message,
+                    value: detail.context?.value
+                }));
 
-        req.validatedBody = value;
-        next();
+                logger.warn('Request validation failed', {
+                    url: req.url,
+                    method: req.method,
+                    errors: details
+                });
+
+                throw new ValidationError('Request validation failed', details);
+            }
+
+            req.validatedBody = value;
+            next();
+        } catch (err) {
+            next(err); // Error handler'a gönder
+        }
     };
 }
 
 export function validateQuery(schema) {
     return (req, res, next) => {
-        const { error, value } = schema.validate(req.query, {
-            abortEarly: false,
-            stripUnknown: true,
-            convert: true
-        });
-
-        if (error) {
-            const details = error.details.map(detail => ({
-                field: detail.path.join('.'),
-                message: detail.message,
-                value: detail.context?.value
-            }));
-
-            logger.warn('Query validation failed', {
-                url: req.url,
-                method: req.method,
-                errors: details
+        try {
+            const { error, value } = schema.validate(req.query, {
+                abortEarly: false,
+                stripUnknown: true,
+                convert: true
             });
 
-            throw new ValidationError('Query validation failed', details);
-        }
+            if (error) {
+                const details = error.details.map(detail => ({
+                    field: detail.path.join('.'),
+                    message: detail.message,
+                    value: detail.context?.value
+                }));
 
-        req.validatedQuery = value;
-        next();
+                logger.warn('Query validation failed', {
+                    url: req.url,
+                    method: req.method,
+                    errors: details
+                });
+
+                throw new ValidationError('Query validation failed', details);
+            }
+
+            req.validatedQuery = value;
+            next();
+        } catch (err) {
+            next(err);
+        }
     };
 }
 
 export function validateParams(schema) {
     return (req, res, next) => {
-        const { error, value } = schema.validate(req.params, {
-            abortEarly: false,
-            stripUnknown: true,
-            convert: true
-        });
-
-        if (error) {
-            const details = error.details.map(detail => ({
-                field: detail.path.join('.'),
-                message: detail.message,
-                value: detail.context?.value
-            }));
-
-            logger.warn('Params validation failed', {
-                url: req.url,
-                method: req.method,
-                errors: details
+        try {
+            const { error, value } = schema.validate(req.params, {
+                abortEarly: false,
+                stripUnknown: true,
+                convert: true
             });
 
-            throw new ValidationError('Params validation failed', details);
-        }
+            if (error) {
+                const details = error.details.map(detail => ({
+                    field: detail.path.join('.'),
+                    message: detail.message,
+                    value: detail.context?.value
+                }));
 
-        req.validatedParams = value;
-        next();
+                logger.warn('Params validation failed', {
+                    url: req.url,
+                    method: req.method,
+                    errors: details
+                });
+
+                throw new ValidationError('Params validation failed', details);
+            }
+
+            req.validatedParams = value;
+            next();
+        } catch (err) {
+            next(err);
+        }
     };
 }
 
-// Custom validation helpers
 export const customValidators = {
     validateCurrencyCode: (code) => {
         return APP_CONSTANTS.SUPPORTED_CURRENCIES.includes(code.toUpperCase());
